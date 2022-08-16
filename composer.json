@@ -1,0 +1,30 @@
+{
+    "name": "getinstance/listingtools",
+    "description": "Tools for generating and managing code listings for books, blogs and documentation",
+    "type": "project",
+    "license": "GPL-3.0",
+    
+    "autoload": {
+        "psr-4": {
+            "getinstance\\listingtools\\": "src/"
+        }
+    },
+    "require": {
+        "guzzlehttp/guzzle": "*"
+    },
+    "bin": [
+        "scripts/doindex.php",
+        "scripts/doindex.php",
+        "scripts/_findautoload.php",
+        "scripts/gencode.php", 
+        "scripts/nextlist.php",
+        "scripts/output.php",
+        "scripts/renum.php"
+    ],
+    "authors": [
+        {
+            "name": "mattz",
+            "email": "matt@getinstance.com"
+        }
+    ]
+}
