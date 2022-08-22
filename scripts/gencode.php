@@ -210,7 +210,8 @@ class ListingGetter
             if (is_null($this->ghcon)) {
                 throw new \Exception("GitHubConnect not initialised");
             }
-            $out = $this->ghcon->createOrUpdateGist($this->project, "listing{$key}.php", $out);
+            $extension = pathinfo($file, \PATHINFO_EXTENSION);
+            $out = $this->ghcon->createOrUpdateGist($this->project, "listing{$key}.{$extension}", $out);
         } else {
             $out = "```\n{$out}\n```\n";
         }
