@@ -67,8 +67,7 @@ $ret = "";
 $contents = file_get_contents($file);
 //$blocks = preg_split("|(```\n// listing.*?\n.*?```)|s", $contents, -1, PREG_SPLIT_DELIM_CAPTURE);
 $blocks = preg_split("|(<!--\s+listing.*?\n.*?<!--\s+endlisting\s+-->)|s", $contents, -1, PREG_SPLIT_DELIM_CAPTURE);
-//print_r($blocks);
-//exit;
+
 $compiled = [];
 $getter = new ListingGetter($project, $dir, $mode, $dryrun, $gistmode);
 

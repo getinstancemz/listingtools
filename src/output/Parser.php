@@ -6,8 +6,9 @@ class Parser
 {
     private $output = [];
     private $reading = [];
-    private static $trigger = "(?:\\s*/\\*|<!--|#)\\s+";
+    private static $trigger = '(?:\\s*/\\*\\s+|<!--|#\\s+|\\"_comment":\\s*\\"\\s*)';
     private $listingstring = "listing\\s+(\\d+\\.\\d+(?:.\\d+)*)";
+    private $listingargs = [];
 
     public static function getRegexpTrigger()
     {
@@ -24,6 +25,9 @@ class Parser
         $ret = "";
         if (count($this->output)) {
             $count = 0;
+            foreach ($this->output as $key => $val) {
+                $this->applyArgs($key, $listingno);
+            }
             foreach ($this->output as $key => $val) {
                 if ($count++ > 0) {
                     $ret .= "\n";
@@ -77,18 +81,68 @@ class Parser
     {
         $trigger = self::getRegexpTrigger();
         if (count($this->reading)) {
-            foreach ($this->reading as $reading => $readingcount) {
-                $this->readLine($line, $reading, $listingno);
+            foreach ($this->reading as $readingno => $readingcount) {
+                $this->readLine($line, $readingno, $listingno);
             }
         }
-        if (preg_match("%{$trigger}{$this->listingstring}%", $line, $matches)) {
+        if (preg_match("%{$trigger}{$this->listingstring}(.*)%", $line, $matches)) {
             if (empty($listingno) || ($listingno == $matches[1])) {
-                $this->reading[$matches[1]] = 1;
+                $readingstate = new ReadingState();
+                $this->reading[$matches[1]] = 1; 
+                $this->listingargs[$matches[1]] = $readingstate;
+                if (isset($matches[2])) {
+                    $args = $this->getListingArgs($matches[2]);
+                    $readingstate->addListingArgs($args);
+                }
             }
         }
     }
 
-    public function readLine($line, $reading, $listingno)
+    public function getListingArgs($rawstr) {
+        $regexp = '^\\s*(\\w+)\\b';
+        $args = [];
+        while (preg_match("/$regexp/", $rawstr, $matches)) {
+            $arg = $matches[1];
+            // consume matched arg
+            $rawstr = substr($rawstr, strlen($matches[0]) );
+
+            $argarg = "";
+            if (
+                preg_match('/^\s*=\s*"([^"]+)"/', $rawstr, $subargmatches) ||
+                preg_match("/^\s*=\s*'([^']+)'/", $rawstr, $subargmatches)
+            ) {
+                $argarg = $matches[1];
+                // consume matched subarg
+                $rawstr = substr($rawstr, strlen($subargmatches[0]) );
+            }
+
+            $args[$arg] = $argarg;
+        }
+        return $args;
+    }
+
+    public function applyArgs($readingno, $listingno) {
+        $readingstate = $this->listingargs[$readingno];
+        $args = $readingstate->getListingArgs();
+
+        if (isset($args['chop'])) {
+            $len = count($this->output[$readingno]);
+            if ($len >= 1) {
+                $manage = $this->output[$readingno][$len-1];
+                $manage = rtrim($manage, "\t\n,");
+                $this->output[$readingno][$len-1] = $manage;
+            }
+        }
+
+        if (isset($args['jsonwrap'])) {
+            $output = $this->output[$readingno];
+            array_unshift($output, "{");
+            array_push($output, "}");
+            $this->output[$readingno]=$output;
+        }
+    }
+
+    public function readLine($line, $readingno, $listingno)
     {
         $trigger = self::getRegexpTrigger();
         $startmatch = false;
@@ -98,7 +152,7 @@ class Parser
             // could be another listing's end -- so register the match.. we will hide from output
             $endmatch = true;
             if (empty($listingno) || ($listingno == $matches[1])) {
-                unset($this->reading[$reading]);
+                unset($this->reading[$readingno]);
             }
             return;
         }
@@ -109,7 +163,7 @@ class Parser
 
         // only include lines that aren't directives
         if (! $startmatch && ! $endmatch) {
-            $this->output[$reading][] = $line;
+            $this->output[$readingno][] = $line;
         }
     }
 }
