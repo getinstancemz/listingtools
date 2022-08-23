@@ -14,7 +14,6 @@ class GitHubConnect
     private $usercached;
     private $gistcached;
 
-    // temporary hardcode of token
     public function __construct($token)
     {
         $token = rtrim($token);
@@ -46,13 +45,14 @@ class GitHubConnect
     }
 
 
-    function createGist($project, $title, $content)
+    function createGist($project, $title, $extension, $content)
     {
+        $filename = "{$title}.{$extension}";
         $params = [
             "public" => false,
             "description" => "{$project}.{$title}",
             "files" => [
-                $title => [
+                $filename => [
                     "content" => $content
                 ]
             ]
@@ -76,25 +76,39 @@ class GitHubConnect
         return false;
     }
 
-    function getGistContents($gist, $title)
+    function getGistContents($gist, $title, $extension)
     {
+        $filename = "{$title}.{$extension}";
         foreach ($gist['files'] as $filekey => $fileinfo) {
-            if ($filekey == $title) {
+            if ($filekey == $filename) {
                 return file_get_contents($fileinfo['raw_url']);
             }
         }
         return null;
     }
 
-    function updateGistFile($gistid, $project, $title, $contents)
+    function updateGistFile($gist, $project, $title, $extension, $contents)
     {
+        $gistid = $gist['id'];
+        $filename = "{$title}.{$extension}";
+
+        $filearray = [];
+        $filearray[$filename] = [
+            "content" => $contents
+        ];
+    
+        // delete other filenames
+        foreach($gist['files'] as $filekey => $contents) {
+            if ($filename != $filekey) {
+                $filearray[$filekey] = [
+                    "content" => ""
+                ];
+            }
+        }
+
         $args = [
             "description" => "{$project}.{$title}",
-            "files" => [
-                $title => [
-                    "content" => $contents
-                ]
-            ]
+            "files" => $filearray 
         ];
         list($code, $body) = $this->doPatch("/gists/{$gistid}", $args);
         if (! $code == 200) {
@@ -102,18 +116,21 @@ class GitHubConnect
         }
         return $body;
     }
-    function createOrUpdateGist($project, $title, $contents)
+
+    function createOrUpdateGist($project, $title, $extension, $contents)
     {
         $gist = $this->findGist($project, $title);
         if (! $gist) {
-            $gist = $this->createGist($project, $title, $contents);
-        } elseif ($this->getGistContents($gist, $title) != $contents) {
-            $gist = $this->updateGistFile($gist['id'], $project, $title, $contents);
+            $gist = $this->createGist($project, $title, $extension, $contents);
+        } else {
+            $oldcontents = $this->getGistContents($gist, $title, $extension);
+            if (count($gist['files']) > 1 || is_null($oldcontents) || $oldcontents != $contents) {
+                $gist = $this->updateGistFile($gist, $project, $title, $extension, $contents);
+            }
         }
         $user = $this->getUser();
         //<script src="https://gist.github.com/getinstancemz/3251d26237494a1539cff53f7a25c0f6.js"></script>
         $embed = "<script src=\"https://gist.github.com/{$user['login']}/{$gist['id']}.js\"></script>\n";
-        //$embed = "<fakeout>\n";
         return $embed;
     }
 

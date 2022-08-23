@@ -205,14 +205,16 @@ class ListingGetter
             $out .= $parser->parse(file_get_contents($file), $key, false);
         }
         next($this->listings);
+        $extension = pathinfo($file, \PATHINFO_EXTENSION);
         if ($this->gistmode) {
             if (is_null($this->ghcon)) {
                 throw new \Exception("GitHubConnect not initialised");
             }
-            $extension = pathinfo($file, \PATHINFO_EXTENSION);
-            $out = $this->ghcon->createOrUpdateGist($this->project, "listing{$key}.{$extension}", $out);
+            $out = $this->ghcon->createOrUpdateGist($this->project, "listing{$key}", $extension, $out);
         } else {
-            $out = "```\n{$out}\n```\n";
+            $acceptable = ["json", "js", "php", "sh"];
+            $syntax = (in_array($extension,$acceptable))?$extension:"";
+            $out = "```{$syntax}\n{$out}\n```\n";
         }
         return [$key, $out];
     }
