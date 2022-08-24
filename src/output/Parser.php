@@ -6,7 +6,7 @@ class Parser
 {
     private $output = [];
     private $reading = [];
-    private static $trigger = '(?:\\s*/\\*\\s+|<!--|#\\s+|\\"_comment":\\s*\\"\\s*)';
+    private static $trigger = '(?:\\s*/\\*\\s+|<!--|#\\s+|\\s*\\"_comment":\\s*\\"\\s*)';
     private $listingstring = "listing\\s+(\\d+\\.\\d+(?:.\\d+)*)";
     private $listingargs = [];
 
