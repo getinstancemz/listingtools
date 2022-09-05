@@ -20,7 +20,6 @@ class Renum {
         $rtag = "__renum__";
         foreach ($ordered as $cno => $chapter) {
             $count = 0;
-            //Indexer::dottedKeySort($chapter);
             $trigger = Parser::getRegexpTrigger();
             foreach ($chapter as $listingkey => $infos) {
                 $count++;

@@ -14,7 +14,6 @@
     },
     "bin": [
         "scripts/doindex.php",
-        "scripts/doindex.php",
         "scripts/_findautoload.php",
         "scripts/gencode.php", 
         "scripts/nextlist.php",

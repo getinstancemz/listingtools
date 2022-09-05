@@ -6,7 +6,7 @@ class Parser
 {
     private $output = [];
     private $reading = [];
-    private static $trigger = '(?:\\s*/\\*\\s+|<!--|#\\s+|\\s*\\"_comment":\\s*\\"\\s*)';
+    private static $trigger = '(?:\\s*/\\*\\s+|<!--\\s+|#\\s+|\\s*\\"_comment":\\s*\\"\\s*)';
     private $listingstring = "listing\\s+(\\d+\\.\\d+(?:.\\d+)*)";
     private $listingargs = [];
 
@@ -41,10 +41,11 @@ class Parser
         if (empty($ret)) {
             return $ret;
         }
-        return $this->doFlush($ret);
+        $ret = $this->doFlush($ret);
+        return $ret;
     }
 
-    public function doFlush($txt)
+    private function doFlush($txt)
     {
         $lines = explode("\n", $txt);
         $start = 0;
@@ -77,7 +78,7 @@ class Parser
         $this->output = [];
     }
 
-    public function handleLine($line, $listingno)
+    private function handleLine($line, $listingno)
     {
         $trigger = self::getRegexpTrigger();
         if (count($this->reading)) {
@@ -98,7 +99,7 @@ class Parser
         }
     }
 
-    public function getListingArgs($rawstr) {
+    private function getListingArgs($rawstr) {
         $regexp = '^\\s*(\\w+)\\b';
         $args = [];
         while (preg_match("/$regexp/", $rawstr, $matches)) {
@@ -121,15 +122,26 @@ class Parser
         return $args;
     }
 
-    public function applyArgs($readingno, $listingno) {
+    private function applyArgs($readingno, $listingno) {
         $readingstate = $this->listingargs[$readingno];
         $args = $readingstate->getListingArgs();
 
         if (isset($args['chop'])) {
             $len = count($this->output[$readingno]);
+            // remove empty lines
+            if ($len >= 1) {
+                for ($x =($len-1); $x>=0; $x--) {
+                    $val = $this->output[$readingno][$x];
+                    if (preg_match("/^\s*$/", $val)) {
+                        array_splice($this->output[$readingno], $x, 1);
+                    }
+                }
+            }
+            // chop spaces on final line
+            $len = count($this->output[$readingno]);
             if ($len >= 1) {
                 $manage = $this->output[$readingno][$len-1];
-                $manage = rtrim($manage, "\t\n,");
+                $manage = rtrim($manage, "\s\t\n,");
                 $this->output[$readingno][$len-1] = $manage;
             }
         }
@@ -142,7 +154,7 @@ class Parser
         }
     }
 
-    public function readLine($line, $readingno, $listingno)
+    private function readLine($line, $readingno, $listingno)
     {
         $trigger = self::getRegexpTrigger();
         $startmatch = false;

@@ -4,11 +4,18 @@ namespace getinstance\listingtools\output;
 
 class Indexer
 {
-    private $indexed = [];
     private $listings = array();
 
-    public function __construct($dir) {
-        $this->doIndex($dir);
+    public function __construct($dir, private Parser $parser, private Sourcefiles $sf) {
+        $this->doIndex($dir, $sf);
+    }
+
+    private function doIndex($dir, SourceFiles $sf)
+    {
+        $callback = function($file) {
+            $this->handleFile($file);
+        };
+        $sf->doIndex($dir, $callback);
     }
 
     public static function dottedKeySort(&$array)
@@ -39,44 +46,14 @@ class Indexer
         });
     }
 
-    private function doIndex($dir)
-    {
-        if (in_array($dir, $this->indexed)) {
-            return;
-        }
-        if (! file_exists($dir)) {
-            throw new \Exception("'$dir' does not exist");
-        }
-
-        if (is_file($dir)) {
-            return $this->handleFile($dir);
-        }
-        $dh = opendir($dir);
-        while (false !== ($item = readdir($dh))) {
-            if (strpos($item, ".") === 0) {
-                continue;
-            }
-            $path = $dir . "/" . $item;
-            if (is_link($path)) {
-                continue;
-            } elseif (is_file($path)) {
-                $this->handleFile($path);
-            } elseif (is_dir($path)) {
-                $this->doIndex($path);
-            }
-        }
-        closedir($dh);
-        $this->indexed[] = $dir;
-    }
-
     function getListings()
     {
+        self::dottedKeySort($this->listings);
         return $this->listings;
     }
 
     function getStructuredListings() {
         $listings = $this->listings;
-        self::dottedKeySort($listings);
         
         $ordered = [];
 
@@ -96,12 +73,9 @@ class Indexer
 
     private function handleFile($file)
     {
-        if (! is_file($file)) {
-            throw new Exception("'$file' is not a file");
-        }
-        $parser = new Parser();
-        $parser->parse(file_get_contents($file));
-        $matches = $parser->getMatches();
+        $contents = $this->sf->getFileContents($file); 
+        $this->parser->parse($contents);
+        $matches = $this->parser->getMatches();
         foreach ($matches as $listing => $text) {
             $this->listings[$listing][] = $file;
         }
