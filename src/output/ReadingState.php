@@ -4,25 +4,30 @@ namespace getinstance\listingtools\output;
 
 class ReadingState
 {
-    private $readingcount=1;
+    private $readingcount = 1;
     private $listingargs = [];
 
-    function __construct() {
+    function __construct()
+    {
     }
 
-    function resetListingArgs($args=[]) {
+    function resetListingArgs($args = [])
+    {
         $this->listingargs = [];
     }
 
-    function addListingArgs($args=[]) {
+    function addListingArgs($args = [])
+    {
         $this->listingargs = array_merge($args, $this->listingargs);
     }
 
-    function getListingArgs($args=[]) {
+    function getListingArgs($args = [])
+    {
         return $this->listingargs;
     }
 
-    function incCount() {
+    function incCount()
+    {
         $this->readingcount++;
     }
 }

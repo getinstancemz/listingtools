@@ -34,7 +34,8 @@ $dir = $argv[($offset + 1)];
 
 
 
-$indexer = new Indexer($dir);
 $sourcefiles = new SourceFiles($stdoutonly, $dryrun);
+$parser = new Parser();
+$indexer = new Indexer($dir, $parser, $sourcefiles);
 $renum = new Renum($indexer, $sourcefiles, $stdoutonly, $dryrun);
 $renum->run($chat);

@@ -5,6 +5,7 @@ namespace getinstance\listingtools\scripts;
 require_once(__DIR__ . "/_findautoload.php");
 
 use getinstance\listingtools\output\Parser;
+use getinstance\listingtools\output\SourceFiles;
 use getinstance\listingtools\output\Indexer;
 use getinstance\listingtools\github\GitHubConnect;
 
@@ -155,10 +156,11 @@ class ListingGetter
     {
         $this->project = $project;
         $this->dir = $dir;
-        $this->indexer = new Indexer($this->dir);
+        $sourcefiles = new SourceFiles();
+        $parser = new Parser();
+        $this->indexer = new Indexer($this->dir, $parser, $sourcefiles);
         $this->listings = $this->indexer->getListings();
         $this->gistmode = $gistmode;
-        Indexer::dottedKeySort($this->listings);
         if ($mode == "flow") {
             $this->mode = $mode;
         }

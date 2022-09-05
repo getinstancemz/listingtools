@@ -26,7 +26,7 @@ class SourceFiles
         $this->files[$file] = $contents;
     }
 
-    public function doIndex($dir, callable $filecallback, $indexed=[])
+    public function doIndex($dir, callable $filecallback, $indexed = [])
     {
         if (in_array($dir, $indexed)) {
             return;
@@ -59,7 +59,7 @@ class SourceFiles
 
     function saveFiles(Chat $chat, $removetag = null)
     {
-        if ($this->dryrun) { 
+        if ($this->dryrun) {
             return;
         }
         foreach ($this->files as $file => $contents) {

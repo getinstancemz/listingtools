@@ -2,10 +2,10 @@
 
 namespace getinstance\listingtools\output;
 
-class Renum {
-
-    function __construct(private Indexer $indexer, private SourceFiles $sourcefiles) {
-
+class Renum
+{
+    function __construct(private Indexer $indexer, private SourceFiles $sourcefiles)
+    {
     }
 
     function getOrderedList()
@@ -13,8 +13,9 @@ class Renum {
         return $this->indexer->getStructuredListings();
     }
 
-    function run(Chat $chat) {
-        $ordered = $this->getOrderedList(); 
+    function run(Chat $chat)
+    {
+        $ordered = $this->getOrderedList();
 
         $fc = $this->sourcefiles;
         $rtag = "__renum__";
@@ -45,4 +46,3 @@ class Renum {
         $fc->saveFiles($chat, $rtag);
     }
 }
-

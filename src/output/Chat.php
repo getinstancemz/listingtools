@@ -2,12 +2,15 @@
 
 namespace getinstance\listingtools\output;
 
-class Chat {
-    public function out($str) {
+class Chat
+{
+    public function out($str)
+    {
         print $str;
     }
 
-    public function warn($str) {
+    public function warn($str)
+    {
         fwrite(STDERR, $str);
     }
 }

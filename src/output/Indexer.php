@@ -6,13 +6,14 @@ class Indexer
 {
     private $listings = array();
 
-    public function __construct($dir, private Parser $parser, private Sourcefiles $sf) {
+    public function __construct($dir, private Parser $parser, private Sourcefiles $sf)
+    {
         $this->doIndex($dir, $sf);
     }
 
     private function doIndex($dir, SourceFiles $sf)
     {
-        $callback = function($file) {
+        $callback = function ($file) {
             $this->handleFile($file);
         };
         $sf->doIndex($dir, $callback);
@@ -52,9 +53,10 @@ class Indexer
         return $this->listings;
     }
 
-    function getStructuredListings() {
+    function getStructuredListings()
+    {
         $listings = $this->listings;
-        
+
         $ordered = [];
 
         foreach ($listings as $listing => $files) {
@@ -67,13 +69,13 @@ class Indexer
                 "files" => $files
             ];
         }
-       
+
         return $ordered;
     }
 
     private function handleFile($file)
     {
-        $contents = $this->sf->getFileContents($file); 
+        $contents = $this->sf->getFileContents($file);
         $this->parser->parse($contents);
         $matches = $this->parser->getMatches();
         foreach ($matches as $listing => $text) {

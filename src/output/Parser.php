@@ -23,6 +23,7 @@ class Parser
             $this->handleLine($line, $listingno);
         }
         $ret = "";
+
         if (count($this->output)) {
             $count = 0;
             foreach ($this->output as $key => $val) {
@@ -67,16 +68,20 @@ class Parser
     }
 
 
+/* listing 001.01 */
     public function getMatches()
     {
         return $this->output;
     }
+/* /listing 001.01 */
 
+/* listing 001.02 */
     public function reset()
     {
         $this->reading = [];
         $this->output = [];
     }
+/* /listing 001.02 */
 
     private function handleLine($line, $listingno)
     {
@@ -89,7 +94,7 @@ class Parser
         if (preg_match("%{$trigger}{$this->listingstring}(.*)%", $line, $matches)) {
             if (empty($listingno) || ($listingno == $matches[1])) {
                 $readingstate = new ReadingState();
-                $this->reading[$matches[1]] = 1; 
+                $this->reading[$matches[1]] = 1;
                 $this->listingargs[$matches[1]] = $readingstate;
                 if (isset($matches[2])) {
                     $args = $this->getListingArgs($matches[2]);
@@ -99,13 +104,14 @@ class Parser
         }
     }
 
-    private function getListingArgs($rawstr) {
+    private function getListingArgs($rawstr)
+    {
         $regexp = '^\\s*(\\w+)\\b';
         $args = [];
         while (preg_match("/$regexp/", $rawstr, $matches)) {
             $arg = $matches[1];
             // consume matched arg
-            $rawstr = substr($rawstr, strlen($matches[0]) );
+            $rawstr = substr($rawstr, strlen($matches[0]));
 
             $argarg = "";
             if (
@@ -114,7 +120,7 @@ class Parser
             ) {
                 $argarg = $matches[1];
                 // consume matched subarg
-                $rawstr = substr($rawstr, strlen($subargmatches[0]) );
+                $rawstr = substr($rawstr, strlen($subargmatches[0]));
             }
 
             $args[$arg] = $argarg;
@@ -122,7 +128,8 @@ class Parser
         return $args;
     }
 
-    private function applyArgs($readingno, $listingno) {
+    private function applyArgs($readingno, $listingno)
+    {
         $readingstate = $this->listingargs[$readingno];
         $args = $readingstate->getListingArgs();
 
@@ -130,7 +137,7 @@ class Parser
             $len = count($this->output[$readingno]);
             // remove empty lines
             if ($len >= 1) {
-                for ($x =($len-1); $x>=0; $x--) {
+                for ($x = ($len - 1); $x >= 0; $x--) {
                     $val = $this->output[$readingno][$x];
                     if (preg_match("/^\s*$/", $val)) {
                         array_splice($this->output[$readingno], $x, 1);
@@ -140,9 +147,9 @@ class Parser
             // chop spaces on final line
             $len = count($this->output[$readingno]);
             if ($len >= 1) {
-                $manage = $this->output[$readingno][$len-1];
+                $manage = $this->output[$readingno][$len - 1];
                 $manage = rtrim($manage, "\s\t\n,");
-                $this->output[$readingno][$len-1] = $manage;
+                $this->output[$readingno][$len - 1] = $manage;
             }
         }
 
@@ -150,7 +157,7 @@ class Parser
             $output = $this->output[$readingno];
             array_unshift($output, "{");
             array_push($output, "}");
-            $this->output[$readingno]=$output;
+            $this->output[$readingno] = $output;
         }
     }
 
