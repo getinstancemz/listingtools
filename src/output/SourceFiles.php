@@ -2,16 +2,12 @@
 
 namespace getinstance\listingtools\output;
 
-class FilesToChange
+class SourceFiles
 {
     private $files = [];
-    private $stdoutonly = false;
 
-    function __construct($stdoutonly = false)
+    function __construct(public readonly bool $stdoutonly = false, public readonly bool $dryrun = false)
     {
-        if ($stdoutonly) {
-            $this->stdoutonly = true;
-        }
     }
 
     function getFileContents($file)
@@ -27,17 +23,18 @@ class FilesToChange
         $this->files[$file] = $contents;
     }
 
-    function saveFiles($removetag = null)
+    function saveFiles(Chat $chat, $removetag = null)
     {
+        if ($this->dryrun) { 
+            return;
+        }
         foreach ($this->files as $file => $contents) {
             if (! is_null($removetag)) {
                 $contents = preg_replace("/$removetag/", "", $contents);
             }
             if ($this->stdoutonly) {
-                fwrite(STDERR, "write to STDOUT only for $file:\n");
-                print $contents . "\n";
+                $chat->out($contents . "\n");
             } else {
-                fwrite(STDERR, "writing $file\n");
                 file_put_contents($file, $contents);
             }
         }

@@ -153,10 +153,9 @@ class ListingGetter
 
     function __construct($project, $dir, $mode = null, $carp = false, $gistmode = false)
     {
-        $this->indexer = new Indexer();
         $this->project = $project;
         $this->dir = $dir;
-        $this->indexer->doIndex($this->dir);
+        $this->indexer = new Indexer($this->dir);
         $this->listings = $this->indexer->getListings();
         $this->gistmode = $gistmode;
         Indexer::dottedKeySort($this->listings);

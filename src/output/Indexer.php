@@ -7,6 +7,10 @@ class Indexer
     private $indexed = [];
     private $listings = array();
 
+    public function __construct($dir) {
+        $this->doIndex($dir);
+    }
+
     public static function dottedKeySort(&$array)
     {
         uksort($array, function ($a, $b) {
@@ -35,7 +39,7 @@ class Indexer
         });
     }
 
-    function doIndex($dir)
+    private function doIndex($dir)
     {
         if (in_array($dir, $this->indexed)) {
             return;
@@ -70,7 +74,27 @@ class Indexer
         return $this->listings;
     }
 
-    function handleFile($file)
+    function getStructuredListings() {
+        $listings = $this->listings;
+        self::dottedKeySort($listings);
+        
+        $ordered = [];
+
+        foreach ($listings as $listing => $files) {
+            $listingparts = explode(".", $listing);
+            if (! isset($ordered[$listingparts[0]][$listing])) {
+                $ordered[$listingparts[0]][$listing] = [];
+            }
+            $ordered[$listingparts[0]][$listing][] = [
+                "listing" => $listing,
+                "files" => $files
+            ];
+        }
+       
+        return $ordered;
+    }
+
+    private function handleFile($file)
     {
         if (! is_file($file)) {
             throw new Exception("'$file' is not a file");

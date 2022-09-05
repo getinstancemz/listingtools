@@ -26,5 +26,8 @@
             "name": "mattz",
             "email": "matt@getinstance.com"
         }
-    ]
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
 }

@@ -12,9 +12,8 @@ if (count($argv) < 2) {
 }
 
 $dir = $argv[1];
-$indexer = new Indexer();
+$indexer = new Indexer($dir);
 print "\n";
-$indexer->doIndex($dir);
 $listings = $indexer->getListings();
 Indexer::dottedKeySort($listings);
 foreach ($listings as $listing => $files) {

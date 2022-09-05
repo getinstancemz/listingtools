@@ -25,8 +25,7 @@ $dir = $argv[2];
 }
 */
 
-$indexer = new Indexer();
-$indexer->doIndex($dir);
+$indexer = new Indexer($dir);
 $listings = $indexer->getListings();
 Indexer::dottedKeySort($listings);
 $listings = array_reverse($listings);
