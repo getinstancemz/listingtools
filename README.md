@@ -44,9 +44,33 @@ When client code calls this...
 
 Run the `gencode.php` command to generate the code blocks and insert them into your manuscript (always do this after committing your work so that you can roll back if necessary).
 
+```
+./vendor/bin/gencode.php readme src/ README.md README.md
+```
+
+Those arguments are, an arbitrary namespace for your project (this is required but only used with the GitHub gist feature), the directory of your source repositiory, your article or chapter, your output file. If you do not specify an output file then the command will write to STDOUT.
+
+Your code slot will then be filled with the corresponding code as marked in your code comments:
+
+    As you can see here `getMatches()` will give you access to found listings
+
+    <!-- listing 001.01  -->
+    ```php
+    public function getMatches()
+    {
+        return $this->output;
+    }
+
+    ```
+    <!-- endlisting -->
+
+    When client code calls this...
+
+If you need to improve your source code fix it in the repository and not the manuscript, then run `gencode.php` again.
 
 
-Generate an index
+
+## Generate an index
 
 ```
 $ doindex src/
