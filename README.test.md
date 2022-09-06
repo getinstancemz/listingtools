@@ -13,7 +13,7 @@ You want to:
 * reimport updated/improved listings easily
 * renumber and reflow code examples
 
-Add your listings to your source archive
+Add comments to your source repository defining the code blocks you wish to extract.
 
 ```php
 /* listing 001.01 */
@@ -31,6 +31,20 @@ Add your listings to your source archive
     }
 /* /listing 001.02 */
 ```
+Create content slots in your chapter/article
+
+```
+As you can see here `getMatches()` will give you access to found listings
+
+<!-- listing 001.01 -->
+<!-- endlisting -->
+
+When client code calls this...
+```
+
+Run the `gencode.php` command to generate the code blocks and insert them into your manuscript (always do this after committing your work so that you can roll back if necessary).
+
+
 
 Generate an index
 
@@ -43,29 +57,4 @@ $ doindex src/
     src/output/Parser.php
 ```
 
-Create content slots in your chapter/article
 
-    As you can see here `getMatches()` will give you access to found listings
-
-    <!-- listing 001.01  -->
-    ```php
-    public function getMatches()
-    {
-        return $this->output;
-    }
-    ```
-    <!-- endlisting -->
-
-    You can reset the parser to read another source file
-
-    <!-- listing 001.01  -->
-    ```php
-    public function getMatches()
-    {
-        return $this->output;
-    }
-
-    ```
-    <!-- endlisting -->
-
-You can then
