@@ -5,7 +5,8 @@ namespace getinstance\listingtools\scripts;
 require_once(__DIR__ . "/_findautoload.php");
 
 use getinstance\listingtools\output\Indexer;
-
+use getinstance\listingtools\output\Parser;
+use getinstance\listingtools\output\SourceFiles;
 
 if (count($argv) < 3) {
     fwrite(STDERR, "usage: nextlist.php <article-id> <dir>\n");
@@ -15,19 +16,14 @@ if (count($argv) < 3) {
 $dirchapter = $argv[1];
 $dir = $argv[2];
 
-//if (preg_match("|^(.*/ch)(\\d+)/|", $dir, $matches)) {
-/*
-    $dir = $matches[1].$matches[2];
-    $dirchapter = $matches[2];
-} else {
-    fwrite(STDERR, "usage: nextlist.php <path_with_chNN>\n");
-    exit(1);
-}
-*/
+$sourcefiles = new SourceFiles();
+$parser = new Parser();
+$indexer = new Indexer($dir, $parser, $sourcefiles);
 
-$indexer = new Indexer($dir);
 $listings = $indexer->getListings();
-Indexer::dottedKeySort($listings);
+
+
+
 $listings = array_reverse($listings);
 if (! count($listings)) {
     $chapter = $dirchapter;

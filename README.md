@@ -13,7 +13,7 @@ ListingTools helps you to
 ## Installation
 There are three easy options
 
-# Install as a project with composer
+### Install as a project with composer
 
 If your current project does not have a composer file (and you don't want to create one), run `composer create-project` to get the tools in a subdirectory.
 
@@ -27,7 +27,7 @@ This will generate a `listingtools` directory. You can invoke the tools from any
 $ php listingtools/scripts/doindex.php myrepo/
 ```
 
-# Download and unzip
+### Download and unzip
 
 You can find the latest release at https://github.com/getinstancemz/listingtools/releases
 
@@ -35,7 +35,7 @@ Download and uncompress the source code archive and run as above.
 
 > **NOTE** Since the dependency won't be enforced for installation using this method, it is important to be aware that the project requires PHP 8.1. 
 
-# Add to a composer-based project
+### Add to a composer-based project
 
 ```
 $ composer require getinstance/listingtools
@@ -51,7 +51,7 @@ $ ./vendor/bin/doindex.php myrepo/
 > **NOTE** Because the scripts are installed as composer binaries you do not need to explicitly invoke PHP.
 
 ## Quick start
-Add comments to your source repository defining the code blocks you wish to extract. You can use slash-star comments although hash comment, HTML comments and a custom json element are also supported
+Add comments to your source repository defining the code blocks you wish to extract. You can use slash-star comments although hash comments, HTML comments and a custom json element are also supported
 
 ```php
 /* listing 001.01 */
@@ -107,7 +107,7 @@ Your code slot will then be filled with the corresponding code as marked in your
 If you need to improve your source code, fix it in the repository and not the manuscript, then run `gencode.php` again -- your listings will be updated.
 
 ## The tools
-The quick start section demonstrates some useful functionality, but it also begs some questions. How do you insert a new listing, for example, without having to hand-renumber all the listings in your chapter? For my book, some chapters contain approximately a hundred listings -- adding inserting three or four new listings would have been... well it's the kind of work that any programmer would rather automate than do manually -- which is why I'm writing this document now. Anyway, here are the details.
+The quick start section demonstrates some useful functionality, but it also begs some questions. How do you insert a new listing, for example, without having to hand-renumber all the listings in your chapter? For my book, some chapters contain approximately a hundred listings -- inserting three or four new listings early in the chapter would have meant... well it's the kind of work that any programmer would rather automate than do manually -- which is why I'm writing this document now. Anyway, here are the details.
 
 ### doindex.php
 Generate an index of all listings marked in the referenced repo
@@ -115,11 +115,12 @@ Generate an index of all listings marked in the referenced repo
 ```
 doindex.php <file_or_dir>
 ```
+
 #### Arguments
 
 | **Argument** | **Description** | **Required?** |
 |----------|-------------|-----------|
-| file\_or\_dir | A source file or repository containing listings comments | yes |
+| **file\_or\_dir** | A source file or repository containing listings comments | yes |
 
 #### Side effects
 None. Entirely read only. Does not write a cache.
@@ -127,7 +128,7 @@ None. Entirely read only. Does not write a cache.
 #### Notes
 This command provides a useful overview of listings during development -- ordered by article.listing number. Can also be usedd to generate an index for readers where a code archive is to be offered alongside a publication.
 
-## Generate an index
+### Example
 
 ```
 $ doindex src/
@@ -137,5 +138,66 @@ $ doindex src/
 001.02: 
     src/output/Parser.php
 ```
+### gencode.php
+Read the source listings and the manuscript. Match the source listings with the corresponding manuscript slots. Output as directed.
+
+```
+gencode.php [options] <project> <srcdir> <chapterfile.md> [<output.md>]
+```
+
+> **CAUTION** This command can change your files quite extensively depending upon how it is run. Always commit to a version control system before running.
+
+#### Arguments
+
+| **Argument** | **Description** | **Required?** |
+|----------|-------------|-----------|
+| **project** | An arbitrary namespace key. Currenly only used in gist mode, but required  | yes |
+| **srcdir**  | The code repository containing code and listing comments | yes |
+| **chapterfile.md** | The Markdown document to be read | yes |
+| **output.md** | The Markdown document to be written to. Can be the same as the input manuscript. Omitting will cause output to be sent to STDOUT | no |
 
 
+#### Flags
+
+| **flag** | **arguments?** | **description** |
+|--------------|-----------------|----------------|
+| **r**    | no  |  Reflow. Ignore listing nn.nn and apply listings in sort order. This will update the slot tags as well as their contents |
+| **f**    | no  |  Force. Where available slots do not match listings available in -r mode -- apply anyway. Careful! |
+| **d**    | no  |  Dry-run. Will show the current occupant of a slot against the incoming code index. Nothing written |
+| **g**    | no  |  (experimental - not yet documented) Rather than generate text, will create a github gist and generate the embed code |
+
+#### Side effects
+Where an output argument is given, may write extensively to the specified file (unless the `-d` flag is used). If the experimental `-g` flag is used, then the listing code is created or updated as a gist, and the output slot will be given the corresponding gist embed.
+
+
+#### Notes
+This is the business end of ListingTools. It is how the code gets copied from your source repo (which should be the source of authority for code) and into your manuscript. When using it to write output to a manuscript file exercise extreme file. Version control, and not this tool, is your reset button.
+
+#### Example
+In dry run mode, the command ouputs a list of matched listings <-> slots but takes no further action
+
+```
+$ vendor/bin/gencode.php -d testproj . chapter.md 
+
+001.00.01
+001.01
+001.02
+001.03
+```
+
+### nextlist.php
+Given a chapter or article number work out what the next listing tag should be
+
+```
+nextlist.php <article-id> <dir>
+```
+
+#### Arguments
+
+| **Argument** | **Description** | **Required?** |
+|----------|-------------|-----------|
+| **article-id** | The chapter or article number -- typically a zero padded three digit number - eg `007`  | yes |
+| **dir**  | The code repository containing code and listing comments | yes |
+
+#### Side effects
+None. Entirely read only. Does not write a cache.
