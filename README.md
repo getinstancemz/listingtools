@@ -239,3 +239,72 @@ $ vendor/bin/output.php . 001.05
 
 ```
 
+### renum.php
+Renumber all listings in the given source directory following sort order so that they are contiguous. This is a good way to insert new listings.
+
+```
+renum.php <dir>
+```
+
+> **CAUTION** When run in anger (ie without flags to suppress or redirect output) this command acts recursively on the given directory, potentially altering many files. Never run this on a files that cannot easily be rolled back to a previous state.
+
+#### Arguments
+| **Argument** | **Description** | **Required?** |
+|----------|-------------|-----------|
+| **srcdir** |  The code repository containing code and listing comments | yes |
+
+
+#### Flags
+
+| **flag** | **arguments?** | **description** |
+|--------------|-----------------|----------------|
+| **d**    | no  |  Dry-run. Will output a summary of what woul be changed but write nothing to files |
+| **o**    | no  |  print changes. Outputs changes to STDOUT - does not write to file |
+
+#### Side effects
+Potentially very large. Will recurse through files in the source directory and renumber listings. Always back up before running.
+
+#### Notes
+Typically you would use this to handle deletions or additions. You might take out a listing during writing / development so that your index looks like:
+
+```
+001.01: 
+    ./one.php
+001.02: 
+    ./one.php
+001.03: 
+    ./two.php
+```
+
+During development we might remove `001.01`. Then we might decide we want to add a new listing before the first. To do that we might create a listing tagged `001.00.01`. Now the index looks like this:
+
+```
+001.00.01: 
+    ./one.php
+001.01: 
+    ./one.php
+001.03: 
+    ./two.php
+```
+
+In the manuscript file we should keep slots up to date with listings in source. Finally, though, when we want to clean up our numbering to close gaps and remove additional listing tag clauses, we can run `renum.php`:
+
+```
+$ renum .
+001.00.01 -> 001.01
+   ./test.md
+   ./one.php
+001.01 -> 001.02
+   ./test.md
+   ./one.php
+no change: 001.03
+```
+
+At this point you should run `git diff` or equivalent to confirm the sanity of the process. Then you can run a `gencode.php` reflow (which inserts listings in sort order ignoring and then updating the stipulated slot tags.
+
+
+```
+$ gencode -r myproject ./ test.md test.md
+```
+
+Assuming that your slots and listing count match this command should reimport and retag your newly renumbered listings.

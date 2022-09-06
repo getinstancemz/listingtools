@@ -69,7 +69,10 @@ class Indexer
                 "files" => $files
             ];
         }
-
+        foreach ($ordered as $chapter => $listings) {
+            self::dottedKeySort($listings);
+            $ordered[$chapter] = $listings;
+        }
         return $ordered;
     }
 

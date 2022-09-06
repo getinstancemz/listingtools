@@ -16,7 +16,6 @@ class Renum
     function run(Chat $chat)
     {
         $ordered = $this->getOrderedList();
-
         $fc = $this->sourcefiles;
         $rtag = "__renum__";
         foreach ($ordered as $cno => $chapter) {

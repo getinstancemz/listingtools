@@ -87,7 +87,7 @@ $codeblockcount = 0;
 foreach ($blocks as $block) {
     // if (preg_match("|listing ([\\d\\.]+)|", $block, $matches)) {
     //if (preg_match("|^```\n// listing ([\\d\\.]+).*```$|s", $block, $matches)) {
-    if (preg_match("|^<!--\s+listing ([\\d\\.]+)\s*(.*?)\s*-->|s", $block, $matches)) {
+    if (preg_match("|^<!--\s+insert ([\\d\\.]+)\s*(.*?)\s*-->|s", $block, $matches)) {
         $num = $matches[1];
         $additional = $matches[2];
         $compiled[] = [
@@ -110,12 +110,12 @@ foreach ($compiled as $cblock) {
         $additional = $cblock['additional'];
         try {
             list($key, $listing) = $getter->getListing($cblock['num']);
-            $ret .= "<!-- listing $key {$additional} -->\n";
+            $ret .= "<!-- insert $key {$additional} -->\n";
             $ret .= $listing;
         } catch (\Exception $e) {
             usageError("error getting listing: " . $e->getMessage());
         }
-        $ret .= "<!-- endlisting -->";
+        $ret .= "<!-- endinsert -->";
     } else {
         $ret .= $cblock['content'];
     }
