@@ -74,8 +74,8 @@ Create content slots in your chapter/article
 ```
 As you can see here `getMatches()` will give you access to found listings
 
-<!-- listing 001.01 -->
-<!-- endlisting -->
+<!-- insert 001.01 -->
+<!-- endinsert -->
 
 When client code calls this...
 ```
@@ -92,7 +92,7 @@ Your code slot will then be filled with the corresponding code as marked in your
 
     As you can see here `getMatches()` will give you access to found listings
 
-    <!-- listing 001.01  -->
+    <!-- insert 001.01  -->
     ```php
     public function getMatches()
     {
@@ -100,7 +100,7 @@ Your code slot will then be filled with the corresponding code as marked in your
     }
 
     ```
-    <!-- endlisting -->
+    <!-- endinsert -->
 
     When client code calls this...
 
@@ -201,3 +201,41 @@ nextlist.php <article-id> <dir>
 
 #### Side effects
 None. Entirely read only. Does not write a cache.
+
+#### Example
+To find the next listing in the current directory: 
+
+```
+$ php scripts/nextlist.php 001 .
+/* listing 001.05 */
+/* /listing 001.05 */
+```
+
+### output.php
+Given the source directory and a listing number collate the listing and write to standard output
+
+```
+output.php <srcdir> <listingno>
+```
+
+#### Arguments
+
+| **Argument** | **Description** | **Required?** |
+|----------|-------------|-----------|
+| **srcdir** |  The code repository containing code and listing comments | yes |
+| **listingno** |  The listing number to output (eg 001.01) | yes |
+
+#### Side effects
+None. Entirely read only. Does not write a cache.
+
+#### Notes
+A useful way to check what a listing will look like when broken up within a file or even spread across several files without having to first generate and embed in the manuscript file
+
+#### Example
+```
+$ vendor/bin/output.php . 001.05
+
+    print "Hello world\n";
+
+```
+
