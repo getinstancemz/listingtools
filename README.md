@@ -171,7 +171,7 @@ Where an output argument is given, may write extensively to the specified file (
 
 
 #### Notes
-This is the business end of ListingTools. It is how the code gets copied from your source repo (which should be the source of authority for code) and into your manuscript. When using it to write output to a manuscript file exercise extreme file. Version control, and not this tool, is your reset button.
+This is the business end of ListingTools. It is how the code gets copied from your source repo (which should be the source of authority for code) and into your manuscript. When using it to write output to a manuscript file exercise extreme caution. **Version control, and not this tool, is your reset button**.
 
 #### Example
 In dry run mode, the command ouputs a list of matched listings <-> slots but takes no further action
@@ -186,7 +186,7 @@ $ vendor/bin/gencode.php -d testproj . chapter.md
 ```
 
 ### nextlist.php
-Given a chapter or article number work out what the next listing tag should be
+Given a chapter or article number, work out what the next listing tag should be
 
 ```
 nextlist.php <article-id> <dir>
@@ -212,7 +212,7 @@ $ php scripts/nextlist.php 001 .
 ```
 
 ### output.php
-Given the source directory and a listing number collate the listing and write to standard output
+Given the source directory and a listing number, collate the listing and write to standard output
 
 ```
 output.php <srcdir> <listingno>
@@ -246,7 +246,7 @@ Renumber all listings in the given source directory following sort order so that
 renum.php <dir>
 ```
 
-> **CAUTION** When run in anger (ie without flags to suppress or redirect output) this command acts recursively on the given directory, potentially altering many files. Never run this on a files that cannot easily be rolled back to a previous state.
+> **CAUTION** When run in anger (ie without flags to suppress or redirect output) this command acts recursively on the given directory, potentially altering many files. Never run this on a repository that cannot easily be rolled back to a previous state.
 
 #### Arguments
 | **Argument** | **Description** | **Required?** |
@@ -265,7 +265,7 @@ renum.php <dir>
 Potentially very large. Will recurse through files in the source directory and renumber listings. Always back up before running.
 
 #### Notes
-Typically you would use this to handle deletions or additions. You might take out a listing during writing / development so that your index looks like:
+Typically you would use this to handle deletions or additions. Imagine, for example, your listing index looks like this:
 
 ```
 001.01: 
@@ -308,3 +308,143 @@ $ gencode -r myproject ./ test.md test.md
 ```
 
 Assuming that your slots and listing count match this command should reimport and retag your newly renumbered listings.
+
+## Tagging the source code
+
+The listings within a source code repository are defined by start and end comments. Typically these use hash-star notation:
+
+```
+/* listing 001.03 */
+
+print "listing code goes here\n";
+
+/* /listing 001.03 */
+```
+
+ListingTools also supports hash comments:
+
+```
+# listing 001.03
+
+print "listing code goes here\n";
+
+# /listing 001.03
+```
+
+And, in order to allow snippets of JSON: 
+
+```
+    "_comment": "listing 001.04",
+	"listingcode": "goes here",
+    "_comment": "/listing 001.04"
+```
+
+JSON listings are relative new at the time of this writing, so should be treated with some caution.
+
+## One listing, many tags
+
+Real testable code often needs to contain much boilerplate. In order to be runnable, a class may need multiple getters and setters, error checking, persistence logic that is not essential to the demonstration at hand. You can cherrypick the code you want to include in your listing by opening and closing your listing tag multiple times within a source file:
+
+
+```php
+/* listing 001.02  */  
+print "This is my example code\n";
+
+// ...
+/* /listing 001.02  */  
+
+print "here is some boilerplate that is not relevant\n";
+
+/* listing 001.02  */  
+
+print "I return to my listing\n";
+/* /listing 001.02  */ 
+```
+
+When compiled `listing 001.02` looks like this:
+
+```php
+print "This is my example code\n";
+
+// ...
+
+print "I return to my listing\n";
+```
+
+## Interleaving listings
+Code often appears more than once in an article or chapter. You might, for example present a rolling example in which you demonstrate the parts of an althorithm, and then wrap up with a final 'putting it all togeter' example. It is much cleaner to use a single soure file for this than it is to have one file for the parts and another for the combined listing. ListingTools allows you to embed listings within listings. It will ignore and suppress listing tags that are not relevant to the listing tag at hand:
+
+```php
+/* listing 001.07  */  
+/* listing 001.05  */  
+print "An initial listing element\n";
+/* /listing 001.05  */  
+/* listing 001.06  */  
+print "A new, related, listing element\n";
+/* /listing 001.06  */  
+```
+
+So there are three listing tags at work here. `Listing 001.05` gives
+
+```php
+print "An initial listing element\n";
+```
+
+`Listing 001.06` gives
+
+```php
+print "A new, related, listing element\n";
+```
+
+`Listing 001.07` provides the 'let's bring it all together' listing:
+
+```php
+print "An initial listing element\n";
+print "A new, related, listing element\n";
+```
+
+> **NOTE** I did not close the tag for `listing 001.07`. ListingTools will happily include the rest of a source file if the opening listing tag does not have a corresonding close tag.
+
+## Listing tag flags
+This (new and experimental at the time of writing) feature allows for some presentation hints to be added to listing tags. Currently supported flags are:
+
+
+| **Flag** | **Description** |
+|----------|-------------|
+| **chop** | Remove whitespace at the end of the listing and also a trailing comma |
+| **jsonwrap** | Wrap a listing in braces -- ie add a leading `{` and a trailing `}` |
+
+
+So for this code block:
+
+```php
+/* listing 001.08 chop */
+print "Remove the gulf that comes after";
+
+
+
+
+/* /listing 001.08  */
+```
+
+The output will omit the trailing newlines. 
+
+You can combine the flags. Like this:
+
+
+```
+"_comment": "listing 001.09 chop jsonwrap",
+    "its": "hard to include the wrapping braces",
+    "and": "the following closing tag comment demands that I include a comma",
+"_comment": "/listing 001.09"
+```
+
+This will produced a listing which reconstructs well-formed JSON:
+
+```
+{
+    "its": "hard to include the wrapping braces",
+    "and": "the following closing tag comment demands that I include a comma"
+}
+
+```
