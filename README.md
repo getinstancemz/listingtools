@@ -1,6 +1,6 @@
 # ListingTools
 
-CLI tools for indexing, extacting, and  embedding code listings. Originally dogfood code written for PHP Object Patterns and Practice.
+CLI tools for indexing, extracting, and  embedding code listings into markdown article or chapter documentations. Originally dogfood code written for the book PHP Objects Patterns and Practice (Apress).
 
 ListingTools helps you to
 
