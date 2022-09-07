@@ -6,7 +6,7 @@ class SourceFiles
 {
     private $files = [];
 
-    function __construct(public readonly bool $stdoutonly = false, public readonly bool $dryrun = false)
+    function __construct(public bool $stdoutonly = false, public bool $dryrun = false)
     {
     }
 

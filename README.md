@@ -33,7 +33,7 @@ You can find the latest release at https://github.com/getinstancemz/listingtools
 
 Download and uncompress the source code archive and run as above.
 
-> **NOTE** Since the dependency won't be enforced for installation using this method, it is important to be aware that the project requires PHP 8.1. 
+> **NOTE** Since the dependency won't be enforced for installation using this method, it is important to be aware that the project requires PHP 8.0. 
 
 ### Add to a composer-based project
 
