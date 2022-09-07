@@ -341,7 +341,7 @@ And, in order to allow snippets of JSON:
 
 JSON listings are relative new at the time of this writing, so should be treated with some caution.
 
-## One listing, many tags
+### One listing, many tags
 
 Real testable code often needs to contain much boilerplate. In order to be runnable, a class may need multiple getters and setters, error checking, persistence logic that is not essential to the demonstration at hand. You can cherrypick the code you want to include in your listing by opening and closing your listing tag multiple times within a source file:
 
@@ -371,7 +371,7 @@ print "This is my example code\n";
 print "I return to my listing\n";
 ```
 
-## Interleaving listings
+### Interleaving listings
 Code often appears more than once in an article or chapter. You might, for example present a rolling example in which you demonstrate the parts of an althorithm, and then wrap up with a final 'putting it all togeter' example. It is much cleaner to use a single soure file for this than it is to have one file for the parts and another for the combined listing. ListingTools allows you to embed listings within listings. It will ignore and suppress listing tags that are not relevant to the listing tag at hand:
 
 ```php
@@ -405,7 +405,7 @@ print "A new, related, listing element\n";
 
 > **NOTE** I did not close the tag for `listing 001.07`. ListingTools will happily include the rest of a source file if the opening listing tag does not have a corresonding close tag.
 
-## Listing tag flags
+### Listing tag flags
 This (new and experimental at the time of writing) feature allows for some presentation hints to be added to listing tags. Currently supported flags are:
 
 
@@ -448,3 +448,26 @@ This will produced a listing which reconstructs well-formed JSON:
 }
 
 ```
+
+## The manuscript listing slots
+
+Obviously, defining listings is only one side of the equation. The next stage is to define the slots into which the listings will be imported by `gencode.php`. These are simply HTML comments that look like this:
+
+```
+<!-- insert 001.06 -->
+<!-- endinsert -->
+```
+
+Unless `listing 001.01` is found, `gencode.php` will throw an error (see above for reflowing -- an exception to this rule). Otherwise it will insert the listing where specified:
+
+
+    <!-- insert 001.06  -->
+    ```php
+    print "A new, related, listing element\n";
+
+    ```
+    <!-- endinsert -->
+
+
+## Finally
+This documentation v1 brought to you with the support of having-covid-on-vacation. It's great. Don't try it.
