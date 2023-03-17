@@ -36,7 +36,7 @@ class Renum
                         $chat->warn("   $file\n");
                         $contents = $fc->getFileContents($file);
                         $keymatch = preg_replace("/\\./", "\\.", $listingkey);
-                        $contents = preg_replace("%^($trigger)(/*listing)\s+{$keymatch}\b%m", "\\1" . "{$rtag}" . "\\2 {$newtarget} ", $contents);
+                        $contents = preg_replace("%^($trigger)(/*listing)\s+{$keymatch}([\s\"])%m", "\\1" . "{$rtag}" . "\\2 {$newtarget}\\3", $contents);
                     }
                     $fc->storeFile($file, $contents);
                 }

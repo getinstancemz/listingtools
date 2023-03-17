@@ -37,13 +37,14 @@ final class RenumTest  extends TestCase
                             $filename
                         ]
                     ]];
+
             $contents = <<<CONTENTS
                 print "hello world";
                 /* listing {$listing[0]} */
                     // show me off
                 /* /listing {$listing[0]} */
-
 CONTENTS;
+
             $argmap[] = [$filename, $contents];
             $consectest[] = [
                     $this->callback(function($file) use ($filename) {
