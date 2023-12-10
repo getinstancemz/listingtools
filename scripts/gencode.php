@@ -213,8 +213,11 @@ class ListingGetter
             }
             $out = $this->ghcon->createOrUpdateGist($this->project, "listing{$key}", $extension, $out);
         } else {
-            $acceptable = ["json", "js", "php", "sh"];
-            $syntax = (in_array($extension,$acceptable))?$extension:"";
+            $acceptable = ["json" => "json", "js" => "javascript", "php" => "php", "sh" => "shell", "py" => "python"];
+            $syntax = "";
+            if (in_array($extension,array_keys($acceptable))) {
+                $syntax = $acceptable[$extension]; 
+            }
             $out = "```{$syntax}\n{$out}\n```\n";
         }
         return [$key, $out];
