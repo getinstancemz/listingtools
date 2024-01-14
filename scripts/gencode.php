@@ -16,13 +16,14 @@ function usageError($msg = "")
     fwrite(STDERR, "   -f  force. Where available slots do not match listings available in -r mode -- apply anyway. Careful!\n");
     fwrite(STDERR, "   -d  dry-run. Will show the current occupant of a slot against the incoming code index. Nothing written\n");
     fwrite(STDERR, "   -g  rather than generate text, will create a github gist and generate the embed code\n");
+    fwrite(STDERR, "   -t  template\n");
     fwrite(STDERR, "\n\n");
     fwrite(STDERR, $msg . "\n\n");
     exit(1);
 }
 
 $offset = 0;
-$opts = getopt("rfdg", [], $opind);
+$opts = getopt("rfdgt:", [], $opind);
 $offset = $opind - 1;
 
 
@@ -30,6 +31,7 @@ $mode = "named";
 $dryrun = false;
 $force = false;
 $gistmode = false;
+$template = null;
 
 if (isset($opts['f'])) {
     $force = true;
@@ -42,6 +44,9 @@ if (isset($opts['d'])) {
 }
 if (isset($opts['g'])) {
     $gistmode = true;
+}
+if (isset($opts['t'])) {
+    $template = $opts['t'];
 }
 
 $args = $argv;
@@ -70,7 +75,7 @@ $contents = file_get_contents($file);
 $blocks = preg_split("|(<!--\s+insert.*?\n.*?<!--\s+endinsert\s+-->)|s", $contents, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 $compiled = [];
-$getter = new ListingGetter($project, $dir, $mode, $dryrun, $gistmode);
+$getter = new ListingGetter($project, $dir, $mode, $dryrun, $gistmode, $template);
 
 if ($gistmode) {
     $tokenfile = $_SERVER['HOME'] . "/.listingtools/ghtoken.txt";
@@ -151,8 +156,9 @@ class ListingGetter
     private $gistmode = false;
     private $carp = false;
     private $ghcon = null;
+    private $prefixtemplate = null;
 
-    function __construct($project, $dir, $mode = null, $carp = false, $gistmode = false)
+    function __construct($project, $dir, $mode = null, $carp = false, $gistmode = false, $prefixtemplate = null)
     {
         $this->project = $project;
         $this->dir = $dir;
@@ -161,6 +167,9 @@ class ListingGetter
         $this->indexer = new Indexer($this->dir, $parser, $sourcefiles);
         $this->listings = $this->indexer->getListings();
         $this->gistmode = $gistmode;
+        if (! is_null($prefixtemplate)) {
+            $this->prefixtemplate = $prefixtemplate;
+        }
         if ($mode == "flow") {
             $this->mode = $mode;
         }
@@ -219,6 +228,11 @@ class ListingGetter
                 $syntax = $acceptable[$extension]; 
             }
             $out = "```{$syntax}\n{$out}\n```\n";
+        }
+        if (! is_null($this->prefixtemplate)) {
+            $t =  $this->prefixtemplate;
+            $t = preg_replace("/%num%/", $key, $t);
+            $out = "{$t}\n" . $out;
         }
         return [$key, $out];
     }

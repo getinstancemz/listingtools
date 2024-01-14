@@ -64,6 +64,7 @@ class Parser
         for ($x = $start; $x < count($lines); $x++) {
             $lines[$x] = preg_replace("|^{$cutme}|", "", $lines[$x]);
         }
+
         return implode("\n", $lines);
     }
 
@@ -159,6 +160,7 @@ class Parser
             array_push($output, "}");
             $this->output[$readingno] = $output;
         }
+        return $args;
     }
 
     private function readLine($line, $readingno, $listingno)
