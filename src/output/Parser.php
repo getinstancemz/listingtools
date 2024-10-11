@@ -93,9 +93,9 @@ class Parser
         }
         if (preg_match("%{$trigger}{$this->listingstring}(.*)%", $line, $matches)) {
             if (empty($listingno) || ($listingno == $matches[1])) {
-                $readingstate = new ReadingState();
                 $this->reading[$matches[1]] = 1;
-                $this->listingargs[$matches[1]] = $readingstate;
+                $this->listingargs[$matches[1]] ??= new ReadingState();
+                $readingstate = $this->listingargs[$matches[1]]; 
                 if (isset($matches[2])) {
                     $args = $this->getListingArgs($matches[2]);
                     $readingstate->addListingArgs($args);
@@ -118,7 +118,7 @@ class Parser
                 preg_match('/^\s*=\s*"([^"]+)"/', $rawstr, $subargmatches) ||
                 preg_match("/^\s*=\s*'([^']+)'/", $rawstr, $subargmatches)
             ) {
-                $argarg = $matches[1];
+                $argarg = $subargmatches[1];
                 // consume matched subarg
                 $rawstr = substr($rawstr, strlen($subargmatches[0]));
             }
@@ -132,6 +132,9 @@ class Parser
     {
         $readingstate = $this->listingargs[$readingno];
         $args = $readingstate->getListingArgs();
+        //print_r($readingstate);
+        //print_r($args);
+        //exit;
 
         if (isset($args['chop'])) {
             $len = count($this->output[$readingno]);
@@ -151,6 +154,15 @@ class Parser
                 $manage = rtrim($manage, "\s\t\n,");
                 $this->output[$readingno][$len - 1] = $manage;
             }
+        }
+
+        if (isset($args['lineprefix'])) {
+            $output = $this->output[$readingno];
+            $newoutput = [];
+            foreach ($output as $line) {
+                $newoutput[] = $args['lineprefix'].$line; 
+            }
+            $this->output[$readingno] = $newoutput;;
         }
 
         if (isset($args['jsonwrap'])) {
